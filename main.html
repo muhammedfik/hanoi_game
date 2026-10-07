@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Muhammed Maher Aljaber</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg1:#0b1020;
+    --panel:rgba(255,255,255,.05);
+    --border:rgba(255,255,255,.12);
+    --text:#e9eefc;
+    --muted:#93a1c4;
+    --accent:#4dabf7;
+    --accent2:#9775fa;
+  }
+  body{
+    font-family:'Segoe UI',system-ui,-apple-system,Tahoma,sans-serif;
+    background:radial-gradient(1200px 600px at 50% -10%, #1d2b4d 0%, var(--bg1) 60%);
+    color:var(--text);
+    min-height:100vh;
+    display:flex;justify-content:center;
+    padding:24px 16px 48px;
+    -webkit-user-select:none;user-select:none;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .app{width:100%;max-width:960px}
+
+  /* ---------- Language switcher ---------- */
+  .lang-switch{
+    display:flex;justify-content:center;gap:6px;
+    margin-bottom:18px;
+    background:rgba(0,0,0,.25);
+    border:1px solid var(--border);
+    border-radius:999px;
+    padding:5px;
+    width:fit-content;margin-left:auto;margin-right:auto;
+  }
+  .lang-btn{
+    border:none;background:transparent;
+    color:var(--muted);
+    padding:8px 16px;border-radius:999px;
+    font-size:13px;font-weight:600;
+    transition:background .2s, color .2s;
+  }
+  .lang-btn:hover{background:rgba(255,255,255,.08);color:var(--text)}
+  .lang-btn.active{
+    background:linear-gradient(135deg,#4dabf7,#9775fa);
+    color:#fff;
+    box-shadow:0 6px 16px rgba(77,171,247,.3);
+  }
+
+  /* ---------- Header ---------- */
+  .head{text-align:center;margin-bottom:22px}
+  .head h1{
+    font-size:clamp(26px,5vw,42px);
+    background:linear-gradient(90deg,#4dabf7,#9775fa,#f783ac);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    margin-bottom:10px;letter-spacing:.5px;
+  }
+  .sub{color:var(--muted);font-size:15px;line-height:1.8;max-width:660px;margin:0 auto}
+
+  /* ---------- Panels ---------- */
+  .panel{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:20px;
+    padding:20px;
+    backdrop-filter:blur(10px);
+    box-shadow:0 18px 50px rgba(0,0,0,.35);
+  }
+  .panel-title{font-size:16px;color:var(--muted);font-weight:600;margin-bottom:16px}
+
+  .setup-row{display:flex;align-items:flex-end;gap:18px;flex-wrap:wrap}
+  .field{display:flex;flex-direction:column;gap:8px}
+  .field label{font-size:13px;color:var(--muted)}
+  .stepper{
+    display:flex;align-items:center;gap:0;
+    background:rgba(0,0,0,.25);
+    border:1px solid var(--border);
+    border-radius:14px;overflow:hidden;
+  }
+  .stepper button{
+    width:48px;height:48px;border:none;border-radius:0;
+    background:transparent;color:var(--text);
+    font-size:22px;font-weight:700;line-height:1;
+    transition:background .15s;
+  }
+  .stepper button:hover{background:rgba(255,255,255,.12)}
+  .stepper button:active{background:rgba(255,255,255,.2)}
+  .stepper input{
+    width:70px;height:48px;border:none;background:transparent;
+    color:var(--text);font-size:22px;font-weight:700;text-align:center;
+    font-family:inherit;outline:none;
+  }
+  .stepper input::-webkit-outer-spin-button,
+  .stepper input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+
+  .hint{margin-top:14px;color:var(--muted);font-size:14px}
+
+  /* ---------- Buttons ---------- */
+  button{
+    font-family:inherit;font-size:15px;cursor:pointer;
+    border:1px solid var(--border);
+    background:rgba(255,255,255,.07);
+    color:var(--text);
+    padding:11px 18px;border-radius:13px;
+    transition:background .18s, transform .12s, opacity .18s;
+  }
+  button:hover:not(:disabled){background:rgba(255,255,255,.15);transform:translateY(-1px)}
+  button:active:not(:disabled){transform:translateY(0)}
+  button:disabled{opacity:.4;cursor:not-allowed;transform:none}
+  button.primary{
+    background:linear-gradient(135deg,#4dabf7,#9775fa);
+    border:none;font-weight:700;
+    box-shadow:0 10px 24px rgba(77,171,247,.28);
+  }
+  button.primary:hover:not(:disabled){
+    background:linear-gradient(135deg,#5cb8ff,#a685ff);
+    box-shadow:0 12px 28px rgba(77,171,247,.4);
+  }
+  button.big{padding:14px 30px;font-size:16px}
+  button.danger{background:linear-gradient(135deg,#ff6b6b,#f06595);border:none;font-weight:700}
+
+  /* ---------- Stats ---------- */
+  .stats{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+  .stat{
+    flex:1;min-width:96px;text-align:center;
+    background:rgba(0,0,0,.22);
+    border:1px solid var(--border);
+    border-radius:14px;padding:10px 8px;
+  }
+  .stat span{display:block;font-size:12px;color:var(--muted);margin-bottom:2px}
+  .stat strong{font-size:22px;color:#fff}
+
+  /* ---------- Board ---------- */
+  .board{
+    direction:ltr;
+    display:flex;gap:10px;justify-content:space-between;
+    background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,.06));
+    border:1px solid var(--border);
+    border-radius:18px;
+    padding:14px 10px 10px;
+  }
+  .peg{
+    position:relative;flex:1;height:300px;
+    border-radius:14px;cursor:pointer;
+    transition:background .2s, box-shadow .2s;
+  }
+  .peg:hover{background:rgba(255,255,255,.045)}
+  .peg.selected{
+    background:rgba(255,212,59,.09);
+    box-shadow:inset 0 0 0 2px rgba(255,212,59,.55);
+  }
+  .peg.shake{animation:shake .3s ease}
+  @keyframes shake{
+    0%,100%{transform:translateX(0)}
+    25%{transform:translateX(-7px)}
+    75%{transform:translateX(7px)}
+  }
+  .rod{
+    position:absolute;left:50%;transform:translateX(-50%);
+    bottom:18px;width:12px;height:240px;
+    border-radius:8px;
+    background:linear-gradient(180deg,#64739b,#2b3550);
+    box-shadow:0 0 14px rgba(0,0,0,.5), inset 0 0 0 1px rgba(255,255,255,.08);
+    z-index:1;
+  }
+  .base{
+    position:absolute;bottom:4px;left:5%;right:5%;height:16px;
+    border-radius:9px;
+    background:linear-gradient(180deg,#64739b,#232c44);
+    box-shadow:0 6px 16px rgba(0,0,0,.5), inset 0 0 0 1px rgba(255,255,255,.08);
+  }
+  .label{
+    position:absolute;top:4px;left:0;right:0;text-align:center;
+    font-size:12px;color:var(--muted);
+  }
+  .disks{
+    position:absolute;bottom:20px;left:0;right:0;
+    display:flex;flex-direction:column-reverse;align-items:center;
+    gap:3px;z-index:2;
+  }
+  .disk{
+    height:20px;border-radius:7px;
+    border:1px solid rgba(255,255,255,.3);
+    box-shadow:inset 0 -3px 0 rgba(0,0,0,.28), 0 3px 8px rgba(0,0,0,.4);
+    transition:transform .18s ease, width .18s ease, box-shadow .18s;
+    will-change:transform;
+  }
+  .peg.selected .disks > .disk:last-child{
+    transform:translateY(-16px);
+    box-shadow:0 0 0 3px rgba(255,212,59,.85), 0 8px 18px rgba(0,0,0,.5);
+  }
+  .disk.drop{animation:drop .24s ease}
+  @keyframes drop{
+    from{transform:translateY(-22px) scale(.92);opacity:.35}
+    to{transform:translateY(0) scale(1);opacity:1}
+  }
+
+  /* ---------- Message ---------- */
+  .msg{
+    margin-top:14px;min-height:52px;
+    display:flex;align-items:center;justify-content:center;text-align:center;
+    padding:12px 16px;border-radius:14px;
+    background:rgba(77,171,247,.08);
+    border:1px solid rgba(77,171,247,.22);
+    color:#cfe4ff;font-size:15px;line-height:1.6;
+    transition:background .25s, border-color .25s, color .25s;
+  }
+  .msg.warn{
+    background:rgba(255,107,107,.12);
+    border-color:rgba(255,107,107,.4);
+    color:#ffc9c9;
+  }
+  .msg.good{
+    background:rgba(56,217,169,.12);
+    border-color:rgba(56,217,169,.4);
+    color:#b2f2e2;
+  }
+
+  /* ---------- Actions ---------- */
+  .actions{
+    display:flex;gap:10px;flex-wrap:wrap;align-items:center;
+    margin-top:16px;
+  }
+  .actions .primary{flex:1;min-width:200px}
+  .speed{
+    display:flex;align-items:center;gap:8px;
+    font-size:13px;color:var(--muted);
+    background:rgba(0,0,0,.22);
+    border:1px solid var(--border);
+    border-radius:13px;padding:7px 12px;
+  }
+  .speed select{
+    font-family:inherit;font-size:14px;
+    background:transparent;color:var(--text);
+    border:none;outline:none;cursor:pointer;
+    padding:3px 4px;
+  }
+  .speed select option{background:#1a2238;color:#e9eefc}
+
+  /* ---------- Modal ---------- */
+  .modal{
+    position:fixed;inset:0;z-index:100;
+    display:flex;align-items:center;justify-content:center;
+    background:rgba(6,10,22,.78);
+    backdrop-filter:blur(6px);
+    padding:20px;
+    animation:fade .25s ease;
+  }
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  .modal-card{
+    width:min(440px,100%);
+    background:linear-gradient(180deg,#1b2440,#131a2e);
+    border:1px solid var(--border);
+    border-radius:22px;
+    padding:30px 24px;
+    text-align:center;
+    box-shadow:0 30px 80px rgba(0,0,0,.6);
+    animation:pop .32s cubic-bezier(.2,1.4,.4,1);
+  }
+  @keyframes pop{from{transform:scale(.86);opacity:0}to{transform:scale(1);opacity:1}}
+  .modal-card .emoji{font-size:52px;margin-bottom:8px}
+  .modal-card h2{font-size:26px;margin-bottom:10px;color:#fff}
+  .modal-card p{color:var(--muted);line-height:1.8;margin-bottom:22px;font-size:15px}
+  .modal-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+  .modal-actions button{flex:1;min-width:140px}
+
+  [hidden]{display:none !important}
+
+  /* ---------- Responsive ---------- */
+  @media (max-width:620px){
+    .peg{height:250px}
+    .rod{height:196px;width:10px;bottom:16px}
+    .disks{bottom:18px;gap:2px}
+    .disk{height:17px;border-radius:6px}
+    .label{font-size:11px}
+    .board{padding:12px 6px 8px;gap:6px}
+    .actions .primary{min-width:100%}
+    .panel{padding:16px}
+    .lang-btn{padding:7px 12px;font-size:12px}
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ===== Language Switcher ===== -->
+  <div class="lang-switch" role="group" aria-label="Language">
+    <button class="lang-btn active" data-lang="ar" type="button">العربية</button>
+    <button class="lang-btn" data-lang="tr" type="button">Türkçe</button>
+    <button class="lang-btn" data-lang="en" type="button">English</button>
+  </div>
+
+  <header class="head">
+    <h1 id="i18n-title">🏛️ أبراج هانوي</h1>
+    <p class="sub" id="i18n-subtitle">
+      انقل كل الأقراص من العمود الأول إلى العمود الثالث — قرص واحد في كل نقلة،
+      ولا تضع أبدًا قرصًا كبيرًا فوق قرص أصغر منه.
+    </p>
+  </header>
+
+  <!-- ===== إعداد اللعبة ===== -->
+  <section class="panel" id="setup">
+    <h2 class="panel-title" id="i18n-setupTitle">إعداد اللعبة</h2>
+    <div class="setup-row">
+      <div class="field">
+        <label for="diskCount" id="i18n-diskLabel">عدد الأقراص</label>
+        <div class="stepper">
+          <button type="button" id="minus" aria-label="−">−</button>
+          <input type="number" id="diskCount" value="3" min="3" max="10" readonly>
+          <button type="button" id="plus" aria-label="+">+</button>
+        </div>
+      </div>
+      <button class="primary big" id="startBtn">ابدأ اللعب ▶</button>
+    </div>
+    <p class="hint" id="setupHint">الحد الأدنى للحركات مع 3 أقراص: 7</p>
+  </section>
+
+  <!-- ===== اللعبة ===== -->
+  <section class="panel" id="gamePanel" hidden>
+    <div class="stats">
+      <div class="stat"><span id="i18n-statMoves">الحركات</span><strong id="moveCount">0</strong></div>
+      <div class="stat"><span id="i18n-statMin">الحد الأدنى</span><strong id="minMoves">7</strong></div>
+      <div class="stat"><span id="i18n-statDisks">الأقراص</span><strong id="disksLabel">3</strong></div>
+    </div>
+
+    <div class="board" id="board"></div>
+
+    <div class="msg" id="msg"></div>
+
+    <div class="actions">
+      <button class="primary" id="solveBtn">💡 إظهار الحل من البداية</button>
+      <button id="undoBtn">↩ تراجع</button>
+      <button id="resetBtn">🔄 إعادة</button>
+      <button id="newBtn">⚙ لعبة جديدة</button>
+      <label class="speed">
+        <span id="i18n-speedLabel">السرعة</span>
+        <select id="speedSel">
+          <option value="900" data-speed="0">بطيء</option>
+          <option value="500" data-speed="1" selected>متوسط</option>
+          <option value="220" data-speed="2">سريع</option>
+          <option value="70"  data-speed="3">فوري</option>
+        </select>
+      </label>
+    </div>
+  </section>
+</div>
+
+<!-- ===== نافذة الفوز ===== -->
+<div class="modal" id="winModal" hidden>
+  <div class="modal-card">
+    <div class="emoji" id="modalEmoji">🎉</div>
+    <h2 id="winTitle">أحسنت!</h2>
+    <p id="winText"></p>
+    <div class="modal-actions">
+      <button class="primary" id="winAgain">العب مرة أخرى</button>
+      <button id="winNew">تغيير عدد الأقراص</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ===================== الترجمات ===================== */
+  const I18N = {
+    ar: {
+      pageTitle: 'أبراج هانوي | Tower of Hanoi',
+      title: '🏛️ أبراج هانوي',
+      subtitle: 'انقل كل الأقراص من العمود الأول إلى العمود الثالث — قرص واحد في كل نقلة، ولا تضع أبدًا قرصًا كبيرًا فوق قرص أصغر منه.',
+      setupTitle: 'إعداد اللعبة',
+      diskLabel: 'عدد الأقراص',
+      startBtn: 'ابدأ اللعب ▶',
+      setupHint: (v, m) => `الحد الأدنى للحركات مع ${v} أقراص: ${m}`,
+      statMoves: 'الحركات',
+      statMin: 'الحد الأدنى',
+      statDisks: 'الأقراص',
+      pegLabel: i => `العمود ${i}`,
+      solveBtn: '💡 إظهار الحل من البداية',
+      stopSolveBtn: '⏹ إيقاف العرض',
+      undoBtn: '↩ تراجع',
+      resetBtn: '🔄 إعادة',
+      newBtn: '⚙ لعبة جديدة',
+      speedLabel: 'السرعة',
+      speeds: ['بطيء', 'متوسط', 'سريع', 'فوري'],
+
+      msgStart: 'اختر عمودًا لرفع القرص العلوي منه، ثم اختر العمود الهدف.',
+      msgEmpty: 'هذا العمود فارغ! اختر عمودًا يحتوي على أقراص.',
+      msgLifted: i => `تم رفع القرص من العمود ${i} — اختر الآن العمود الهدف.`,
+      msgCancelled: 'تم إلغاء التحديد.',
+      msgGoodMove: 'نقلة موفقة! واصل ←',
+      msgInvalid: 'لا يمكن وضع قرص أكبر فوق قرص أصغر! جرّب عمودًا آخر.',
+      msgUndo: 'تم التراجع عن آخر نقلة.',
+      msgSolveStart: total => `الحل الأمثل يتكوّن من ${total} نقلة — سيتم عرضه من البداية الآن...`,
+      msgSolveStep: (i, total, from, to) => `الخطوة ${i} من ${total}: انقل القرص من العمود ${from} إلى العمود ${to}`,
+      msgSolveDone: total => `تم عرض الحل كاملًا في ${total} نقلة ✔ الآن جرّب بنفسك!`,
+      msgSolveStopped: 'تم إيقاف عرض الحل. يمكنك المتابعة بنفسك.',
+      msgWinOptimal: moves => `لقد أكملت اللغز في ${moves} نقلة. 🏆 وهذا هو الحل الأمثل تمامًا!`,
+      msgWinNormal: (moves, min) => `لقد أكملت اللغز في ${moves} نقلة. الحد الأدنى الممكن هو ${min} نقلة.`,
+
+      modalSolveTitle: 'تم عرض الحل!',
+      modalSolveText: total => `هذا هو الحل الأمثل المكوّن من ${total} نقلة. أعد المحاولة بنفسك — لا يوجد حل أسرع من هذا.`,
+      modalWinTitle: 'أحسنت! 🎉',
+      winAgain: 'العب مرة أخرى',
+      winNew: 'تغيير عدد الأقراص'
+    },
+    tr: {
+      pageTitle: 'Hanoi Kuleleri | Tower of Hanoi',
+      title: '🏛️ Hanoi Kuleleri',
+      subtitle: 'Tüm diskleri birinci çubuktan üçüncü çubuğa taşı — her hamlede tek disk ve asla büyük bir diski küçük bir diskin üzerine koyma.',
+      setupTitle: 'Oyun Kurulumu',
+      diskLabel: 'Disk Sayısı',
+      startBtn: 'Oyuna Başla ▶',
+      setupHint: (v, m) => `${v} disk için minimum hamle sayısı: ${m}`,
+      statMoves: 'Hamleler',
+      statMin: 'Minimum',
+      statDisks: 'Diskler',
+      pegLabel: i => `Çubuk ${i}`,
+      solveBtn: '💡 Çözümü Baştan Göster',
+      stopSolveBtn: '⏹ Gösterimi Durdur',
+      undoBtn: '↩ Geri Al',
+      resetBtn: '🔄 Sıfırla',
+      newBtn: '⚙ Yeni Oyun',
+      speedLabel: 'Hız',
+      speeds: ['Yavaş', 'Orta', 'Hızlı', 'Anında'],
+
+      msgStart: 'Önce bir çubuk seçerek en üstteki diski kaldır, sonra hedef çubuğa tıkla.',
+      msgEmpty: 'Bu çubuk boş! İçinde disk olan bir çubuk seç.',
+      msgLifted: i => `${i}. çubuktan disk kaldırıldı — şimdi hedef çubuğu seç.`,
+      msgCancelled: 'Seçim iptal edildi.',
+      msgGoodMove: 'Güzel hamle! Devam et ←',
+      msgInvalid: 'Büyük bir disk küçük bir diskin üzerine konulamaz! Başka bir çubuk dene.',
+      msgUndo: 'Son hamle geri alındı.',
+      msgSolveStart: total => `Optimal çözüm ${total} hamleden oluşuyor — şimdi baştan gösterilecek...`,
+      msgSolveStep: (i, total, from, to) => `Adım ${i} / ${total}: Diski ${from}. çubuktan ${to}. çubuğa taşı`,
+      msgSolveDone: total => `Çözüm ${total} hamlede tamamen gösterildi ✔ Şimdi kendin dene!`,
+      msgSolveStopped: 'Gösterim durduruldu. Kendi başına devam edebilirsin.',
+      msgWinOptimal: moves => `Bulmacayı ${moves} hamlede tamamladın. 🏆 Bu tam olarak optimal çözüm!`,
+      msgWinNormal: (moves, min) => `Bulmacayı ${moves} hamlede tamamladın. Mümkün olan minimum ${min} hamledir.`,
+
+      modalSolveTitle: 'Çözüm Gösterildi!',
+      modalSolveText: total => `Bu, ${total} hamleden oluşan optimal çözümdür. Kendin tekrar dene — bundan daha hızlı bir çözüm yok.`,
+      modalWinTitle: 'Harika! 🎉',
+      winAgain: 'Tekrar Oyna',
+      winNew: 'Disk Sayısını Değiştir'
+    },
+    en: {
+      pageTitle: 'Tower of Hanoi',
+      title: '🏛️ Tower of Hanoi',
+      subtitle: 'Move all disks from the first peg to the third — one disk per move, and never place a larger disk on top of a smaller one.',
+      setupTitle: 'Game Setup',
+      diskLabel: 'Number of Disks',
+      startBtn: 'Start Playing ▶',
+      setupHint: (v, m) => `Minimum moves with ${v} disks: ${m}`,
+      statMoves: 'Moves',
+      statMin: 'Minimum',
+      statDisks: 'Disks',
+      pegLabel: i => `Peg ${i}`,
+      solveBtn: '💡 Show Solution from Start',
+      stopSolveBtn: '⏹ Stop Playback',
+      undoBtn: '↩ Undo',
+      resetBtn: '🔄 Reset',
+      newBtn: '⚙ New Game',
+      speedLabel: 'Speed',
+      speeds: ['Slow', 'Medium', 'Fast', 'Instant'],
+
+      msgStart: 'Pick a peg to lift its top disk, then choose the target peg.',
+      msgEmpty: 'That peg is empty! Choose a peg that has disks.',
+      msgLifted: i => `Disk lifted from peg ${i} — now choose the target peg.`,
+      msgCancelled: 'Selection cancelled.',
+      msgGoodMove: 'Nice move! Keep going ←',
+      msgInvalid: 'You can\'t place a larger disk on a smaller one! Try another peg.',
+      msgUndo: 'Last move undone.',
+      msgSolveStart: total => `The optimal solution needs ${total} moves — showing it from the start now...`,
+      msgSolveStep: (i, total, from, to) => `Step ${i} of ${total}: move the disk from peg ${from} to peg ${to}`,
+      msgSolveDone: total => `Solution shown completely in ${total} moves ✔ Now try it yourself!`,
+      msgSolveStopped: 'Playback stopped. You can continue by yourself.',
+      msgWinOptimal: moves => `You solved the puzzle in ${moves} moves. 🏆 That's exactly the optimal solution!`,
+      msgWinNormal: (moves, min) => `You solved the puzzle in ${moves} moves. The minimum possible is ${min} moves.`,
+
+      modalSolveTitle: 'Solution Shown!',
+      modalSolveText: total => `This is the optimal solution using ${total} moves. Try it yourself — there is no faster solution.`,
+      modalWinTitle: 'Well Done! 🎉',
+      winAgain: 'Play Again',
+      winNew: 'Change Disk Count'
+    }
+  };
+
+  /* ===================== الحالة العامة ===================== */
+  const COLORS = ['#ff8787','#ffa94d','#ffd43b','#a9e34b','#38d9a9',
+                  '#4dabf7','#9775fa','#f783ac','#63e6be','#ffc078'];
+
+  const $ = id => document.getElementById(id);
+
+  let currentLang = 'ar';
+  let n           = 3;
+  let pegs        = [[],[],[]];
+  let selected    = null;
+  let moveCount   = 0;
+  let history     = [];
+  let solving     = false;
+  let finished    = false;
+  let timer       = null;
+  let solution    = [];
+  let stepIndex   = 0;
+  let speed       = 500;
+
+  // لحفظ آخر رسالة / نافذة لإعادة ترجمتها عند تغيير اللغة
+  let pendingMsg = null;   // { key, args, type }
+  let pendingModal = null; // { titleKey, textKey, args }
+
+  /* ===================== ترجمة ===================== */
+  function t(key, ...args) {
+    const v = I18N[currentLang][key];
+    return typeof v === 'function' ? v(...args) : v;
+  }
+
+  /* ===================== بناء الأعمدة ===================== */
+  const boardEl = $('board');
+  const pegEls  = [];
+
+  for (let i = 0; i < 3; i++) {
+    const peg = document.createElement('div');
+    peg.className = 'peg';
+        peg.innerHTML =
+      '<div class="rod"></div>' +
+      '<div class="disks"></div>' +
+      '<div class="base"></div>' +
+      '<div class="label" data-peg="' + (i + 1) + '"></div>';
+    peg.addEventListener('click', () => onPegClick(i));
+    boardEl.appendChild(peg);
+    pegEls.push(peg);
+  }
+
+  /* ===================== أدوات مساعدة ===================== */
+  function shade(hex, p) {
+    const num = parseInt(hex.slice(1), 16);
+    const r = Math.max(0, Math.min(255, (num >> 16) + p));
+    const g = Math.max(0, Math.min(255, ((num >> 8) & 0xff) + p));
+    const b = Math.max(0, Math.min(255, (num & 0xff) + p));
+    return 'rgb(' + r + ',' + g + ',' + b + ')';
+  }
+
+  function diskWidth(size) {
+    if (n <= 1) return '80%';
+    const pct = 32 + (size - 1) * (62 / (n - 1));
+    return pct.toFixed(2) + '%';
+  }
+
+  function setMsg(text, type) {
+    const m = $('msg');
+    m.textContent = text;
+    m.classList.remove('warn', 'good');
+    if (type) m.classList.add(type);
+  }
+
+  // تخزين الرسالة لإعادة ترجمتها عند تغيير اللغة
+  function setMsgKey(key, args, type) {
+    pendingMsg = { key, args: args || [], type: type || null };
+    setMsg(t(key, ...(args || [])), type);
+  }
+
+  function refreshMsg() {
+    if (pendingMsg) setMsg(t(pendingMsg.key, ...pendingMsg.args), pendingMsg.type);
+  }
+
+  function updateStats() {
+    $('moveCount').textContent = moveCount;
+  }
+
+  /* ===================== الرسم ===================== */
+  function render(animatePeg) {
+    pegEls.forEach((pegEl, i) => {
+      const disksEl = pegEl.querySelector('.disks');
+      disksEl.innerHTML = '';
+      const total = pegs[i].length;
+
+      pegs[i].forEach((size, idx) => {
+        const d = document.createElement('div');
+        d.className = 'disk';
+        d.style.width = diskWidth(size);
+        const c = COLORS[(size - 1) % COLORS.length];
+        d.style.background = 'linear-gradient(180deg,' + c + ',' + shade(c, -45) + ')';
+        if (i === animatePeg && idx === total - 1) d.classList.add('drop');
+        disksEl.appendChild(d);
+      });
+
+      pegEl.classList.toggle('selected', selected === i);
+    });
+  }
+
+  /* ===================== منطق اللعبة ===================== */
+  function resetBoard() {
+    pegs = [[], [], []];
+    for (let s = n; s >= 1; s--) pegs[0].push(s);
+
+    selected  = null;
+    moveCount = 0;
+    history   = [];
+    finished  = false;
+
+    stopSolving();
+
+    $('disksLabel').textContent = n;
+    $('minMoves').textContent   = Math.pow(2, n) - 1;
+    $('winModal').hidden        = true;
+    pendingModal = null;
+
+    updateStats();
+    render();
+    setMsgKey('msgStart', [], null);
+  }
+
+  function startGame(count) {
+    n = count;
+    $('setup').hidden     = true;
+    $('gamePanel').hidden = false;
+    resetBoard();
+  }
+
+  function top(pegIndex) {
+    const arr = pegs[pegIndex];
+    return arr.length ? arr[arr.length - 1] : null;
+  }
+
+  function canMove(from, to) {
+    if (from === to) return false;
+    const t0 = top(from);
+    if (t0 === null) return false;
+    const dest = top(to);
+    return dest === null || t0 < dest;
+  }
+
+  function doMove(from, to, record) {
+    const disk = pegs[from].pop();
+    pegs[to].push(disk);
+    if (record !== false) {
+      moveCount++;
+      history.push({ from, to });
+    }
+    updateStats();
+    render(to);
+  }
+
+  function isSolved() {
+    return pegs[2].length === n;
+  }
+
+  /* ===================== التفاعل بالنقر ===================== */
+  function onPegClick(i) {
+    if (solving || finished) return;
+
+    if (selected === null) {
+      if (!pegs[i].length) {
+        setMsgKey('msgEmpty', [], 'warn');
+        shake(i);
+        return;
+      }
+      selected = i;
+      render();
+      setMsgKey('msgLifted', [i + 1], null);
+      return;
+    }
+
+    if (selected === i) {
+      selected = null;
+      render();
+      setMsgKey('msgCancelled', [], null);
+      return;
+    }
+
+    if (canMove(selected, i)) {
+      const from = selected;
+      selected = null;
+      doMove(from, i, true);
+      if (isSolved()) {
+        win();
+      } else {
+        setMsgKey('msgGoodMove', [], null);
+      }
+    } else {
+      setMsgKey('msgInvalid', [], 'warn');
+      shake(i);
+    }
+  }
+
+  function shake(i) {
+    const el = pegEls[i];
+    el.classList.remove('shake');
+    void el.offsetWidth;
+    el.classList.add('shake');
+    setTimeout(() => el.classList.remove('shake'), 320);
+  }
+
+  /* ===================== التراجع ===================== */
+  function undo() {
+    if (solving || finished || !history.length) return;
+    const last = history.pop();
+    const disk = pegs[last.to].pop();
+    pegs[last.from].push(disk);
+    moveCount = Math.max(0, moveCount - 1);
+    selected = null;
+    updateStats();
+    render();
+    setMsgKey('msgUndo', [], null);
+  }
+
+  /* ===================== الحل ===================== */
+  function buildSolution(k, from, to, via, out) {
+    if (k === 0) return;
+    buildSolution(k - 1, from, via, to, out);
+    out.push([from, to]);
+    buildSolution(k - 1, via, to, from, out);
+  }
+
+  function startSolve() {
+    resetBoard();
+    solution = [];
+    buildSolution(n, 0, 2, 1, solution);
+    stepIndex = 0;
+    solving = true;
+    updateButtons();
+    setMsgKey('msgSolveStart', [solution.length], 'good');
+    timer = setInterval(tickSolve, speed);
+  }
+
+  function tickSolve() {
+    if (stepIndex >= solution.length) {
+      stopSolving();
+      return;
+    }
+
+    const move = solution[stepIndex++];
+    doMove(move[0], move[1], true);
+
+    setMsgKey('msgSolveStep',
+      [stepIndex, solution.length, move[0] + 1, move[1] + 1], 'good');
+
+    if (isSolved()) {
+      stopSolving();
+      setMsgKey('msgSolveDone', [solution.length], 'good');
+      showModal('modalSolveTitle', 'modalSolveText', [solution.length]);
+    }
+  }
+
+  function stopSolving() {
+    if (timer) { clearInterval(timer); timer = null; }
+    solving = false;
+    updateButtons();
+  }
+
+  function updateButtons() {
+    const btn = $('solveBtn');
+    btn.textContent = solving ? t('stopSolveBtn') : t('solveBtn');
+    btn.classList.toggle('danger', solving);
+    $('undoBtn').disabled  = solving || finished;
+    $('resetBtn').disabled = false;
+  }
+
+  /* ===================== الفوز ===================== */
+  function win() {
+    finished = true;
+    selected = null;
+    render();
+    updateButtons();
+
+    const min = Math.pow(2, n) - 1;
+    if (moveCount === min) {
+      setMsgKey('msgWinOptimal', [moveCount], 'good');
+    } else {
+      setMsgKey('msgWinNormal', [moveCount, min], 'good');
+    }
+    showModal('modalWinTitle', null, [moveCount, min], true);
+  }
+
+  function showModal(titleKey, textKey, args, isWin) {
+    pendingModal = { titleKey, textKey, args, isWin };
+    renderModal();
+    $('winModal').hidden = false;
+  }
+
+  function renderModal() {
+    if (!pendingModal) return;
+    const { titleKey, textKey, args, isWin } = pendingModal;
+
+    $('modalEmoji').textContent = isWin ? '🎉' : '💡';
+    $('winTitle').textContent   = t(titleKey);
+
+    if (isWin) {
+      const min = Math.pow(2, n) - 1;
+      $('winText').textContent =
+        (moveCount === min) ? t('msgWinOptimal', moveCount)
+                            : t('msgWinNormal', moveCount, min);
+    } else if (textKey) {
+      $('winText').textContent = t(textKey, ...args);
+    }
+  }
+
+  /* ===================== تبديل اللغة ===================== */
+  function updateHint() {
+    const v = +$('diskCount').value;
+    $('setupHint').textContent = t('setupHint', v, Math.pow(2, v) - 1);
+  }
+
+  function applyLang(lang) {
+    currentLang = lang;
+    const dict = I18N[lang];
+
+    // اتجاه الصفحة
+    const dir = (lang === 'ar') ? 'rtl' : 'ltr';
+    document.documentElement.lang = lang;
+    document.documentElement.dir  = dir;
+    document.title = dict.pageTitle;
+
+    // نصوص ثابتة
+    $('i18n-title').textContent     = dict.title;
+    $('i18n-subtitle').textContent  = dict.subtitle;
+    $('i18n-setupTitle').textContent= dict.setupTitle;
+    $('i18n-diskLabel').textContent = dict.diskLabel;
+    $('startBtn').textContent       = dict.startBtn;
+    $('i18n-statMoves').textContent = dict.statMoves;
+    $('i18n-statMin').textContent   = dict.statMin;
+    $('i18n-statDisks').textContent = dict.statDisks;
+    $('undoBtn').textContent        = dict.undoBtn;
+    $('resetBtn').textContent       = dict.resetBtn;
+    $('newBtn').textContent         = dict.newBtn;
+    $('i18n-speedLabel').textContent= dict.speedLabel;
+    $('winAgain').textContent       = dict.winAgain;
+    $('winNew').textContent         = dict.winNew;
+
+    // أزرار السرعة
+    const opts = $('speedSel').querySelectorAll('option');
+    opts.forEach(o => {
+      const idx = +o.dataset.speed;
+      if (dict.speeds[idx]) o.textContent = dict.speeds[idx];
+    });
+
+    // تسميات الأعمدة
+    document.querySelectorAll('.label[data-peg]').forEach(el => {
+      el.textContent = dict.pegLabel(+el.dataset.peg);
+    });
+
+    // زر الحل
+    updateButtons();
+
+    // الرسالة الحالية
+    refreshMsg();
+
+    // النافذة إن كانت مفتوحة
+    if (!$('winModal').hidden) renderModal();
+
+    // التلميح
+    updateHint();
+
+    // زر اللغة النشط
+    document.querySelectorAll('.lang-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.lang === lang);
+    });
+  }
+
+  /* ===================== عناصر الواجهة ===================== */
+  $('minus').addEventListener('click', () => {
+    const input = $('diskCount');
+    input.value = Math.max(3, +input.value - 1);
+    updateHint();
+  });
+
+  $('plus').addEventListener('click', () => {
+    const input = $('diskCount');
+    input.value = Math.min(10, +input.value + 1);
+    updateHint();
+  });
+
+  $('startBtn').addEventListener('click', () => startGame(+$('diskCount').value));
+
+  $('solveBtn').addEventListener('click', () => {
+    if (solving) {
+      stopSolving();
+      setMsgKey('msgSolveStopped', [], null);
+    } else {
+      startSolve();
+    }
+  });
+
+  $('undoBtn').addEventListener('click', undo);
+
+  $('resetBtn').addEventListener('click', () => resetBoard());
+
+  $('newBtn').addEventListener('click', () => {
+    stopSolving();
+    $('gamePanel').hidden = true;
+    $('setup').hidden = false;
+    $('winModal').hidden = true;
+    pendingModal = null;
+  });
+
+  $('speedSel').addEventListener('change', e => {
+    speed = +e.target.value;
+    if (solving) {
+      clearInterval(timer);
+      timer = setInterval(tickSolve, speed);
+    }
+  });
+
+  $('winAgain').addEventListener('click', () => {
+    $('winModal').hidden = true;
+    pendingModal = null;
+    resetBoard();
+  });
+
+  $('winNew').addEventListener('click', () => {
+    $('winModal').hidden = true;
+    pendingModal = null;
+    stopSolving();
+    $('gamePanel').hidden = true;
+    $('setup').hidden = false;
+  });
+
+  // أزرار اللغة
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.addEventListener('click', () => applyLang(btn.dataset.lang));
+  });
+
+  /* ===================== التشغيل الأولي ===================== */
+  applyLang('ar');
+})();
+</script>
+</body>
+</html>
